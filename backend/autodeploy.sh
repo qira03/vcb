@@ -6,13 +6,14 @@ PROJECT_NAME='unicauca_vrcb'
 BASE_PATH=`pwd`
 DUMP_FILE='base.sql'
 STATIC_PATH='static' # static for dev stage
-# MEDIA_URL='' # no media folder needed. S3 bucket setting up in settings.py
-MEDIA_PATH='media' # no me dia folder needed. S3 bucket setting up in settings.py
+# MEDIA_URL='' # media folder needed.
+MEDIA_PATH='media' # media folder needed.
 APP_PORT=6677
 DOMAINS='' # add domain/subdomain and IP
+NAME_DB='vrcb_db'; # database name
 MAX_UPLOAD='10M'
-#PROXY_PASS='http://unix:'$BASE_PATH'/'$PROJECT_NAME'.sock' # change only if you want to deploy over another binding proxy type like http
-#GUNICORN_SERVICE_USER=$USER # change if you deploy over another user account
+PROXY_PASS='http://unix:'$BASE_PATH'/'$PROJECT_NAME'.sock' # change only if you want to deploy over another binding proxy type like http
+GUNICORN_SERVICE_USER=$USER # change if you deploy over another user account
 
 # install the environment
 sudo apt-get update
@@ -26,7 +27,8 @@ sudo pip install pipenv
 # setting up the project
 pipenv install
 pipenv run python manage.py migrate
-pipenv run python manage.py loaddata $DUMP_FILE # populate data
+#pipenv run python manage.py loaddata $DUMP_FILE # populate data
+mysql -u root -p $NAME_DB < base.sql
 pipenv run python manage.py createsuperuser
 mkdir $STATIC_PATH
 echo 'STATIC_ROOT=os.path.join(BASE_DIR, "'$STATIC_PATH'/")' >> $PROJECT_NAME/settings.py # static for dev stage
@@ -74,7 +76,7 @@ server {
     location /favicon.ico {access_log off;log_not_found off;}
 
     location /$MEDIA_URL  {
-        # alias $BASE_PATH/$MEDIA_PATH; # no me dia folder needed. S3 bucket setting up in settings.py
+         alias $BASE_PATH/$MEDIA_PATH; # media folder needed. 
    6677
     FRONTEND_PORT=80
     DASHBOARD_PORT=8080
